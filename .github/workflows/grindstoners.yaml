@@ -49,7 +49,7 @@ jobs:
         with:
           command: clippy
           args: >
-            -- --deny --warnings
+            -- --deny warnings
 
   test:
     name: Unit Test
