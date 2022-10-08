@@ -6,7 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = "0.4"
+thiserror = "1"
+tokio = { version = "1", features = ["full"] }
 
+[dev-dependencies]
+env_logger = "0.9"
 
 [lib]
 name = "grindstone"

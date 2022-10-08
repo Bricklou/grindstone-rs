@@ -21,3 +21,22 @@
         <img src="https://img.shields.io/github/license/bricklou/grindstone-rs" />
     </a>
 </div>
+
+## Build the code
+
+To build the library, the do the following command:
+```sh
+carbo build
+```
+
+## Run the example
+
+You can run the example program from `examples/example.rs` using the command below. Don't forgot to add `RUST_LOG` environment variable to 
+have the full logs:
+```sh
+RUST_LOG=grindstone-rs=trace,debug cargo run --example example
+```
+
+## Authors
+
+- [@Bricklou](https://www.github.com/bricklou)
