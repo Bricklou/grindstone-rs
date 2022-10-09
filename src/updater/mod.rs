@@ -1,16 +1,35 @@
-use log::info;
+use std::fs;
 
-use crate::errors::GrindstoneResult;
+use crate::{errors::GrindstoneResult, event::EventType, invoke_callback};
 
-pub struct GrindstoneUpdater {}
+use self::config::Config;
+
+pub mod config;
+pub mod event;
+mod paths;
+
+pub struct GrindstoneUpdater {
+    config: Config,
+}
 
 impl GrindstoneUpdater {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(config: Config) -> Self {
+        Self { config }
     }
 
     pub async fn update(&mut self) -> GrindstoneResult<()> {
-        info!("Starting updater !");
+        invoke_callback!(self, EventType::Starting, "Starting Updater !");
+
+        invoke_callback!(
+            self,
+            EventType::CreatingFolders,
+            "Creating required folders"
+        );
+        fs::create_dir_all(self.dot_minecraft_path())?;
+        fs::create_dir_all(self.updater_folder())?;
+
+        // Check versions on server and download version manifest
+
         Ok(())
     }
 }

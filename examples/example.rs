@@ -1,4 +1,4 @@
-use grindstone::GrindstoneUpdater;
+use grindstone::{config::ConfigBuilder, event::CallbackFn, GrindstoneUpdater};
 
 extern crate env_logger;
 extern crate log;
@@ -9,7 +9,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     log::info!("Hello !");
 
-    let mut updater = GrindstoneUpdater::new();
+    let callback_fn: CallbackFn = |event| {
+        println!("{:?} - {}", event.event_type, event.message);
+    };
+
+    let config = ConfigBuilder::default()
+        .set_event_callback(Box::new(callback_fn))
+        .minecraft_folder_path("./output")
+        .name("My example version")
+        .build()?;
+
+    let mut updater = GrindstoneUpdater::new(config);
 
     updater.update().await?;
 
