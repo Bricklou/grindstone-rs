@@ -33,12 +33,12 @@ impl ConfigBuilder {
         let instance_name = self
             .instance_name
             .clone()
-            .ok_or(GrindstoneError::InvalidConfig("instance_name".to_string()))?;
+            .ok_or_else(|| GrindstoneError::InvalidConfig("instance_name".to_string()))?;
 
         let folder_path = self
             .folder_path
             .clone()
-            .ok_or(GrindstoneError::InvalidConfig("folder_path".to_string()))?;
+            .ok_or_else(|| GrindstoneError::InvalidConfig("folder_path".to_string()))?;
 
         Ok(Config {
             event_callback: self.event_callack,

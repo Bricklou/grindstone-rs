@@ -29,7 +29,7 @@ impl GrindstoneUpdater {
 #[macro_export]
 macro_rules! invoke_callback {
     ($s:expr, $t:expr,$m:expr) => {{
-        use crate::updater::event::CallbackEvent;
+        use $crate::updater::event::CallbackEvent;
         log::info!("{}", $m);
         $s.config.event_callback.as_ref()(CallbackEvent {
             event_type: $t,
