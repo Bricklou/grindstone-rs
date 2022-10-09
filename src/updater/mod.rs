@@ -7,9 +7,10 @@ use self::config::Config;
 pub mod config;
 pub mod event;
 mod paths;
+pub mod version;
 
 pub struct GrindstoneUpdater {
-    config: Config,
+    pub config: Config,
 }
 
 impl GrindstoneUpdater {
@@ -29,7 +30,7 @@ impl GrindstoneUpdater {
         fs::create_dir_all(self.updater_folder())?;
 
         // Check versions on server and download version manifest
-
+        self.save_version_data().await?;
         Ok(())
     }
 }

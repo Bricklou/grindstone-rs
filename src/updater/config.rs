@@ -1,6 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use crate::errors::{GrindstoneError, GrindstoneResult};
+use crate::{
+    errors::{GrindstoneError, GrindstoneResult},
+    version::{MinecraftVersion, MinecraftVersionBuilder},
+};
 
 use super::event::CallbackEvent;
 
@@ -8,6 +11,7 @@ pub struct ConfigBuilder {
     event_callack: Box<fn(CallbackEvent)>,
     folder_path: Option<PathBuf>,
     instance_name: Option<String>,
+    pub version: MinecraftVersion,
 }
 
 #[derive(Debug)]
@@ -15,6 +19,7 @@ pub struct Config {
     pub event_callback: Box<fn(CallbackEvent)>,
     pub folder_path: PathBuf,
     pub instance_name: String,
+    pub version: MinecraftVersion,
 }
 
 impl Default for ConfigBuilder {
@@ -23,6 +28,7 @@ impl Default for ConfigBuilder {
             instance_name: None,
             event_callack: Box::new(|_| {}),
             folder_path: None,
+            version: MinecraftVersionBuilder::default().build(),
         }
     }
 }
@@ -44,6 +50,7 @@ impl ConfigBuilder {
             event_callback: self.event_callack,
             folder_path,
             instance_name,
+            version: self.version,
         })
     }
 

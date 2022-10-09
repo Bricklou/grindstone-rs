@@ -35,4 +35,21 @@ impl GrindstoneUpdater {
         path.push(".minecraft");
         path
     }
+
+    /// Path to the game versions
+    /// Version are shared with the offical minecraft launcher
+    pub fn versions_path(&self) -> PathBuf {
+        let mut path = self.dot_minecraft_path();
+        path.push("versions");
+        path
+    }
+
+    /// Path to the version manifest file
+    pub fn version_data_path(&self) -> PathBuf {
+        let mut path = self.versions_path();
+        let v = self.config.version.id.clone();
+        path.push(&v);
+        path.push(format!("{}.json", v));
+        path
+    }
 }

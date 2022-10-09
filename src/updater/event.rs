@@ -1,9 +1,8 @@
-use crate::GrindstoneUpdater;
-
 #[derive(Debug)]
 pub enum EventType {
     Starting,
     CreatingFolders,
+    DownloadManifest,
 }
 
 #[derive(Debug)]
@@ -13,18 +12,6 @@ pub struct CallbackEvent {
 }
 
 pub type CallbackFn = fn(CallbackEvent);
-
-impl GrindstoneUpdater {
-    pub fn invoke_callback<S: Into<String>>(&self, event_type: EventType, message: S) {
-        let message = message.into();
-
-        log::info!("{}", message);
-        self.config.event_callback.as_ref()(CallbackEvent {
-            event_type,
-            message,
-        });
-    }
-}
 
 #[macro_export]
 macro_rules! invoke_callback {
