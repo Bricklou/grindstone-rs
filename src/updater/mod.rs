@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 
 use crate::{errors::GrindstoneResult, event::EventType, invoke_callback};
 
@@ -11,11 +11,15 @@ pub mod version;
 
 pub struct GrindstoneUpdater {
     pub config: Config,
+    pub java_runtime_path: PathBuf,
 }
 
 impl GrindstoneUpdater {
     pub fn new(config: Config) -> Self {
-        Self { config }
+        Self {
+            config,
+            java_runtime_path: PathBuf::new(),
+        }
     }
 
     pub async fn update(&mut self) -> GrindstoneResult<()> {
@@ -31,6 +35,9 @@ impl GrindstoneUpdater {
 
         // Check versions on server and download version manifest
         self.save_version_data().await?;
+
+        // Check if a compatible version of java is available
+        self.install_java().await?;
         Ok(())
     }
 }

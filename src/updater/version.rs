@@ -16,9 +16,9 @@ pub struct MinecraftVersion {
     pub version_type: VersionType,
 }
 
-impl Into<String> for MinecraftVersion {
-    fn into(self) -> String {
-        self.id
+impl From<MinecraftVersion> for String {
+    fn from(v: MinecraftVersion) -> Self {
+        v.id
     }
 }
 

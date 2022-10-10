@@ -30,7 +30,7 @@ impl GrindstoneUpdater {
         let version_summary = manifest
             .versions
             .get(&version_id)
-            .ok_or_else(|| GrindstoneError::InvalidVersion(version_id))?;
+            .ok_or(GrindstoneError::InvalidVersion(version_id))?;
 
         // Save version data
         let version_data_path = self.version_data_path();

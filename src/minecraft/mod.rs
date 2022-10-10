@@ -1,1 +1,2 @@
+mod java;
 mod vanilla;

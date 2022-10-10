@@ -27,7 +27,7 @@ pub async fn download_file_check<S: Into<String>>(
     url: S,
     dest: impl AsRef<Path>,
     remote_sha: Option<Vec<u8>>,
-) -> GrindstoneResult<()> {
+) -> GrindstoneResult<String> {
     let url = url.into();
     trace!("Checked download of file: {}", url);
 
@@ -36,7 +36,7 @@ pub async fn download_file_check<S: Into<String>>(
 
         match &remote_sha {
             None => {
-                return Ok(());
+                return Ok(url);
             }
             Some(remote_sha) => {
                 let local_sha = get_sha1(&dest)?;
@@ -44,16 +44,16 @@ pub async fn download_file_check<S: Into<String>>(
                 if remote_sha == &local_sha {
                     trace!("Existing file is correct");
 
-                    return Ok(());
+                    return Ok(url);
                 } else {
                     trace!("Existing file does not match checksum");
 
-                    download_file(url, &dest).await?;
+                    download_file(&url, &dest).await?;
                 }
             }
         }
     } else {
-        download_file(url, &dest).await?;
+        download_file(&url, &dest).await?;
     }
 
     if let Some(remote_sha) = &remote_sha {
@@ -63,5 +63,5 @@ pub async fn download_file_check<S: Into<String>>(
         }
     }
 
-    Ok(())
+    Ok(url)
 }
