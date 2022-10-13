@@ -12,6 +12,7 @@ pub enum EventType {
     DownloadManifest,
     SearchingForJRE,
     DownloadJRE(Progress),
+    DownloadAssetIndex,
 }
 
 #[derive(Debug)]
@@ -27,7 +28,7 @@ macro_rules! invoke_callback {
     ($s:expr, $t:expr,$m:expr) => {{
         use $crate::updater::event::CallbackEvent;
         log::info!("{}", $m);
-        $s.config.event_callback.as_ref()(CallbackEvent {
+        $s.event_callback.as_ref()(CallbackEvent {
             event_type: $t,
             message: String::from($m),
         });

@@ -1,10 +1,10 @@
 mod arguments;
-mod asset_index;
+pub mod asset_index;
 mod downloads;
 mod extract;
 mod file;
 pub mod java_version;
-mod library;
+pub mod library;
 mod library_download;
 mod logging_info;
 mod natives;

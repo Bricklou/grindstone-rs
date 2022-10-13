@@ -1,19 +1,19 @@
 use std::path::PathBuf;
 
-use crate::GrindstoneUpdater;
+use crate::config::Config;
 
-impl GrindstoneUpdater {
+impl Config {
     /// Path to the updater folder
     /// This path contains all the files which cannot be placed inside the .minecraft folder
     pub fn updater_folder(&self) -> PathBuf {
-        PathBuf::from(&self.config.folder_path)
+        PathBuf::from(&self.folder_path)
     }
 
     /// Path to the instance folder
     pub fn current_instance(&self) -> PathBuf {
         let mut path = self.updater_folder();
         path.push("instances");
-        path.push(self.config.instance_name.clone());
+        path.push(self.instance_name.clone());
         path
     }
 
@@ -47,9 +47,23 @@ impl GrindstoneUpdater {
     /// Path to the version manifest file
     pub fn version_data_path(&self) -> PathBuf {
         let mut path = self.versions_path();
-        let v = self.config.version.id.clone();
+        let v = self.version.id.clone();
         path.push(&v);
         path.push(format!("{}.json", v));
+        path
+    }
+
+    /// Path to the game assets.
+    pub fn assets_path(&self) -> PathBuf {
+        let mut path = self.dot_minecraft_path();
+        path.push("assets");
+        path
+    }
+
+    /// Path to the asset index JSON file.
+    pub fn asset_index_path(&self) -> PathBuf {
+        let mut path = self.assets_path();
+        path.push("indexes");
         path
     }
 }

@@ -14,7 +14,7 @@ pub struct ConfigBuilder {
     pub version: MinecraftVersion,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Config {
     pub event_callback: Box<fn(CallbackEvent)>,
     pub folder_path: PathBuf,

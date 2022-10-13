@@ -1,4 +1,9 @@
-use std::{collections::HashMap, fs, os::unix::prelude::PermissionsExt, path::PathBuf};
+use std::{
+    collections::HashMap,
+    fs,
+    os::{linux::raw, unix::prelude::PermissionsExt},
+    path::PathBuf,
+};
 
 use futures::{stream::FuturesUnordered, StreamExt};
 use log::{debug, trace};
@@ -8,11 +13,13 @@ use crate::{
     errors::GrindstoneResult,
     event::{EventType, Progress},
     invoke_callback,
-    utils::download::download_file_check,
-    GrindstoneUpdater,
+    utils::download::{download_file_check, Download},
 };
 
-use super::runtime_manifest::{FileType, JreFile};
+use super::{
+    runtime_manifest::{FileType, JreFile},
+    Java,
+};
 
 #[derive(Deserialize, Debug)]
 pub struct DownloadFile {
@@ -21,10 +28,10 @@ pub struct DownloadFile {
     pub url: String,
 }
 
-impl GrindstoneUpdater {
+impl Java {
     pub async fn download_jre_files(
         &self,
-        dest: PathBuf,
+        dest: &PathBuf,
         files: HashMap<String, JreFile>,
     ) -> GrindstoneResult<()> {
         debug!("No JRE found, downloading one");
@@ -40,7 +47,7 @@ impl GrindstoneUpdater {
 
         let log_progress = |cur: u32, m: u32, msg: String| {
             invoke_callback!(
-                self,
+                self.config,
                 EventType::DownloadJRE(Progress {
                     current: cur,
                     max: m,
@@ -49,6 +56,8 @@ impl GrindstoneUpdater {
                 "Downloading JRE"
             );
         };
+
+        let client = reqwest::Client::new();
 
         let mut tasks = FuturesUnordered::new();
 
@@ -67,7 +76,14 @@ impl GrindstoneUpdater {
 
                     let raw_data = data.downloads.unwrap().raw;
                     let sha = hex::decode(&raw_data.sha1)?;
-                    let a = download_file_check(raw_data.url.clone(), path.clone(), Some(sha));
+                    let dl = Download {
+                        file: path.clone(),
+                        sha1: Some(sha.clone()),
+                        url: raw_data.url.clone(),
+                    };
+
+                    let a =
+                        download_file_check(&client, raw_data.url.clone(), path.clone(), Some(sha));
                     tasks.push(a);
 
                     if data.executable == Some(true) {

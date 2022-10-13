@@ -1,10 +1,12 @@
 use std::path::PathBuf;
 
-use crate::{errors::GrindstoneResult, GrindstoneUpdater};
+use crate::errors::GrindstoneResult;
 
-impl GrindstoneUpdater {
+use super::Java;
+
+impl Java {
     #[cfg(windows)]
-    pub fn runtime_path(&self) -> PathBuf {
+    pub fn runtime_path(&self) -> GrindstoneResult<PathBuf> {
         // Use MS store first if available
 
         // Otherwise, try the MSI installation version
@@ -14,14 +16,14 @@ impl GrindstoneUpdater {
 
     #[cfg(unix)]
     pub fn runtime_path(&self) -> GrindstoneResult<PathBuf> {
-        let mut path = self.dot_minecraft_path();
+        let mut path = self.config.dot_minecraft_path();
         path.push("runtime");
         Ok(path)
     }
 
     #[cfg(target_os = "macos")]
     /// Not yet implemented, please someone do it, i don't own a Mac OS !
-    pub fn runtime_path(&self) -> PathBuf {
+    pub fn runtime_path(&self) -> GrindstoneResult<PathBuf> {
         unimplemented!("I don't own a Mac OS, i can't test my code or where the JRE is located.");
     }
 

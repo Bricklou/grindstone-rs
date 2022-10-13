@@ -1,2 +1,4 @@
+mod asset_index;
+mod libraries;
 pub mod models;
-mod versions;
+pub mod versions_data;

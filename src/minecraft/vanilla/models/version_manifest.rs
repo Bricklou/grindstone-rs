@@ -2,7 +2,11 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{constants, errors::GrindstoneResult};
+use crate::{
+    constants,
+    errors::{GrindstoneError, GrindstoneResult},
+    version::MinecraftVersion,
+};
 
 use super::version_summary::VersionSummary;
 
@@ -18,7 +22,7 @@ pub struct VersionsManifest {
 
 impl VersionsManifest {
     /// Get the manifest from Minecraft servers.
-    pub async fn get() -> GrindstoneResult<Self> {
+    pub async fn fetch() -> GrindstoneResult<Self> {
         let response = reqwest::Client::new()
             .get(constants::MC_VERSION_MANIFEST_URL)
             .send()
@@ -28,6 +32,15 @@ impl VersionsManifest {
             .await?;
 
         Ok(response.into())
+    }
+
+    pub fn get_version(&self, version: &MinecraftVersion) -> GrindstoneResult<&VersionSummary> {
+        let summary = self
+            .versions
+            .get(&version.id)
+            .ok_or(GrindstoneError::InvalidVersion(version.id.clone()))?;
+
+        Ok(summary)
     }
 }
 
