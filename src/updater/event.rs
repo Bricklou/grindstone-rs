@@ -5,6 +5,15 @@ pub struct Progress {
     pub message: String,
 }
 
+/// Update of library installation
+#[derive(Clone, Debug)]
+pub enum LibraryInstallationUpdate {
+    /// Download status
+    Downloading,
+    /// Extracting
+    Extracting,
+}
+
 #[derive(Debug)]
 pub enum EventType {
     Starting,
@@ -13,6 +22,7 @@ pub enum EventType {
     SearchingForJRE,
     DownloadJRE(Progress),
     DownloadAssetIndex,
+    Libraries(Progress, LibraryInstallationUpdate),
 }
 
 #[derive(Debug)]

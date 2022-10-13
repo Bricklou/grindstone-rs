@@ -6,11 +6,7 @@ use std::{
 use log::warn;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    constants,
-    errors::{GrindstoneError, GrindstoneResult},
-    utils::os::Architecture,
-};
+use crate::{constants, utils::os::Architecture};
 
 use super::{extract::Extract, library_download::LibraryDownloads, natives::Natives, rules::Rule};
 
@@ -31,7 +27,7 @@ pub struct Library {
 }
 
 impl Library {
-    /// Checks if the library needs to be used on the current executing machine.
+    /// Checks if the library needs to be used on the current machine.
     pub fn check_use(&self) -> bool {
         for rule in &self.rules {
             if !rule.allows() {
@@ -42,167 +38,129 @@ impl Library {
         true
     }
 
+    /// Builds the name of the library jar file.
+    pub fn jar_name(&self) -> String {
+        let split = self.split_name();
+        // Take name and version
+        let parts = split.iter().skip(1).take(2).cloned();
+        // Take suffixes
+        let suffixes = split.iter().skip(3).cloned();
+
+        let mut name = vec![];
+
+        // Name & version
+        name.extend(parts);
+
+        // Native
+        if let Some(native) = self.get_native() {
+            name.push(native);
+        }
+
+        // Suffixes
+        name.extend(suffixes);
+
+        let mut name = name.join("-");
+        name.push_str(".jar");
+
+        name
+    }
+
     /// Builds the path where the library jar file is placed.
-    /// This path does not include the jar file itself.
-    pub fn library_path(&self, libraries_path: impl AsRef<Path>) -> GrindstoneResult<PathBuf> {
-        let mut split = self.split_name();
-        let mut package = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-        let name = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-        let version = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-
-        package = package.replace('.', "/");
+    /// This path does not include the file itself.
+    pub fn library_path(&self, libraries_path: impl AsRef<Path>) -> PathBuf {
+        // Take package, name and version
+        let path_parts = self.split_name().into_iter().take(3);
 
         let mut library_path = PathBuf::from(libraries_path.as_ref());
-        library_path.push(&package);
-        library_path.push(&name);
-        library_path.push(&version);
+        for (i, path_part) in path_parts.enumerate() {
+            let part = match i {
+                0 => path_part.replace('.', "/"),
+                _ => path_part,
+            };
 
-        Ok(library_path)
+            library_path.push(part);
+        }
+
+        library_path
     }
 
-    /// Build the path for the library jar file.
-    /// Supports building the file name for natives.
-    /// This path does include the jar file itself.
-    pub fn jar_path(
-        &self,
-        libraries_path: impl AsRef<Path>,
-        native: Option<&str>,
-    ) -> GrindstoneResult<PathBuf> {
-        let mut split = self.split_name();
-        let mut package = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-        let name = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-        let version = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-        let suffix = split.pop_front();
+    /// Builds the complete path for the library jar file.
+    pub fn jar_path(&self, libraries_path: impl AsRef<Path>) -> PathBuf {
+        let mut jar_path = self.library_path(&libraries_path);
+        jar_path.push(self.jar_name());
 
-        package = package.replace('.', "/");
-
-        let mut library_path = PathBuf::from(libraries_path.as_ref());
-        library_path.push(&package);
-        library_path.push(&name);
-        library_path.push(&version);
-
-        let jar_name = Self::jar_name(&name, &version, native, suffix.as_deref());
-
-        library_path.push(jar_name);
-
-        Ok(library_path)
+        jar_path
     }
 
-    /// Gets the download URL for this library.
-    /// Supports download URL for native file by providing the native identifier.
-    /// Returns the URL, SHA1 and file size.
-    pub fn download_url(
-        &self,
-        native: Option<&str>,
-    ) -> GrindstoneResult<(String, Option<String>, Option<usize>)> {
+    /// Builds the download URL for the library.
+    /// Returns a tuble: (URL, SHA1, size).
+    pub fn download_url(&self) -> (String, Option<String>, Option<usize>) {
         let url: String;
         let mut sha1 = None;
         let mut size = None;
 
-        match native {
-            Some(native) => {
-                match self.downloads.classifiers.get(native) {
-                    // Take data from file
-                    Some(file) => {
-                        url = file.url.clone();
-                        sha1 = Some(file.sha1.clone());
-                        size = Some(file.size);
-                    }
-                    // Build data from name
-                    None => {
-                        url = self.build_url_from_name(Some(native))?;
-                    }
+        match &self.get_native() {
+            Some(native) => match self.downloads.classifiers.get(native) {
+                Some(file) => {
+                    url = file.url.clone();
+                    sha1 = Some(file.sha1.clone());
+                    size = Some(file.size);
                 }
-            }
-            None => {
-                match &self.downloads.artifact {
-                    // Take data from file
-                    Some(file) => {
-                        url = file.url.clone();
-                        sha1 = Some(file.sha1.clone());
-                        size = Some(file.size);
-                    }
-                    // Build data from name
-                    None => {
-                        url = self.build_url_from_name(None)?;
-                    }
+                None => {
+                    url = self.build_url_from_name();
                 }
+            },
+            None => match &self.downloads.artifact {
+                Some(file) => {
+                    url = file.url.clone();
+                    sha1 = Some(file.sha1.clone());
+                    size = Some(file.size);
+                }
+                None => {
+                    url = self.build_url_from_name();
+                }
+            },
+        }
+
+        (url, sha1, size)
+    }
+
+    /// Checks if the library needs to be extracted.
+    pub fn needs_extract(&self) -> bool {
+        self.get_native().is_some() && self.extract.is_some()
+    }
+
+    fn build_url_from_name(&self) -> String {
+        // Take package, name and version
+        let parts = self.split_name().into_iter().take(3);
+
+        let mut url = vec![constants::MC_LIBRARIES_BASE_URL.to_string()];
+
+        for (i, part) in parts.enumerate() {
+            if i == 0 {
+                url.push(part.replace('.', "/"));
+            } else {
+                url.push(part);
             }
         }
 
-        Ok((url, sha1, size))
+        url.push(self.jar_name());
+
+        url.join("/")
     }
 
-    fn build_url_from_name(&self, native: Option<&str>) -> GrindstoneResult<String> {
-        let mut split = self.split_name();
-        let mut package = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-        let name = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-        let version = split
-            .pop_front()
-            .ok_or(GrindstoneError::LibraryNameFormat)?;
-
-        package = package.replace('.', "/");
-
-        let url = format!(
-            "{}/{}/{}/{}/{}",
-            constants::MC_LIBRARIES_BASE_URL,
-            &package,
-            &name,
-            &version,
-            &Self::jar_name(&name, &version, native, None),
-        );
-
-        warn!("{}", &url);
-
-        Ok(url)
-    }
-
-    /// Build the name for the library jar file.
-    fn jar_name(name: &str, version: &str, native: Option<&str>, suffix: Option<&str>) -> String {
-        match (suffix, native) {
-            (Some(suffix), Some(native)) => {
-                format!("{}-{}-{}-{}.jar", name, version, native, suffix)
-            }
-            (Some(suffix), None) => format!("{}-{}-{}.jar", name, version, suffix),
-            (None, Some(native)) => format!("{}-{}-{}.jar", name, version, native),
-            (None, None) => format!("{}-{}.jar", name, version),
-        }
-    }
-
-    /// Splits the library name at its delimitor (`:`).
-    fn split_name(&self) -> VecDeque<String> {
-        self.name
-            .split(':')
-            .map(|x| x.to_string())
-            .collect::<VecDeque<_>>()
-    }
-
-    /// Gets the native library if applicable.
+    /// Gets the native identifier of the library.
     pub fn get_native(&self) -> Option<String> {
         let arch = Architecture::current();
 
-        if let Some(natives) = &self.natives {
-            return natives
+        self.natives.as_ref().and_then(|natives| {
+            natives
                 .get_for_current_platform()
-                .map(|n| n.replace("${arch}", &arch.get_bits().to_string()));
-        }
+                .map(|n| n.replace("${arch}", &arch.get_bits().to_string()))
+        })
+    }
 
-        None
+    fn split_name(&self) -> Vec<String> {
+        self.name.split(':').map(String::from).collect()
     }
 }

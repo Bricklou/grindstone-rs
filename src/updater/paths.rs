@@ -66,4 +66,20 @@ impl Config {
         path.push("indexes");
         path
     }
+
+    /// Path to the game libraries
+    /// Libraries are shared with the offical minecraft launcher
+    pub fn libraries_path(&self) -> PathBuf {
+        let mut path = self.dot_minecraft_path();
+        path.push("libraries");
+        path
+    }
+
+    /// Path to the game libraries
+    /// Libraries are shared with the offical minecraft launcher
+    pub fn natives_path(&self) -> PathBuf {
+        let mut path = self.dot_minecraft_path();
+        path.push("libraries");
+        path
+    }
 }

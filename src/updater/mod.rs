@@ -68,7 +68,7 @@ impl GrindstoneUpdater {
         AssetIndex::save(&self.config, v_data.clone()).await?;
 
         // Download libraries
-        Library::install_libraries(v_data.clone()).await?;
+        Library::install_libraries(&self.config, v_data.clone()).await?;
 
         Ok(())
     }

@@ -20,20 +20,20 @@ pub struct Download {
 }
 
 impl Download {
-    pub async fn download(&self, client: &reqwest::Client) -> GrindstoneResult<String> {
+    pub async fn exec(d: Self, client: &reqwest::Client) -> GrindstoneResult<String> {
         use tokio::fs::{create_dir_all, File};
 
         // Create parent folder
-        if let Some(parent) = self.file.parent() {
+        if let Some(parent) = d.file.parent() {
             trace!("Creating parent folder");
             create_dir_all(parent).await?;
         }
 
-        trace!("Downloading file: {}", self.url);
+        trace!("Downloading file: {}", d.url);
 
-        let response = client.get(&self.url).send().await?.error_for_status()?;
+        let response = client.get(&d.url).send().await?.error_for_status()?;
 
-        let mut file = File::create(&self.file).await?;
+        let mut file = File::create(&d.file).await?;
         let mut stream = response.bytes_stream();
 
         while let Some(item) = stream.next().await {
@@ -43,7 +43,7 @@ impl Download {
 
         file.sync_all().await?;
 
-        Ok(self.url.clone())
+        Ok(d.url.clone())
     }
 }
 
@@ -108,4 +108,21 @@ pub async fn download_file_check<S: Into<String>>(
     }
 
     Ok(url)
+}
+
+/// Progress of an ongoing download.
+#[derive(Clone, Debug)]
+pub struct DownloadProgress {
+    /// The URL of the download.
+    pub url: String,
+    /// The path where the file is saved.
+    pub file: PathBuf,
+    /// Current file index.
+    pub current_file: usize,
+    /// Number of files that are being downloaded.
+    pub total_files: usize,
+    /// Bytes that already got downloaded.
+    pub downloaded_bytes: u64,
+    /// Total bytes of the file.
+    pub total_bytes: u64,
 }
