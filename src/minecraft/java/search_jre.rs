@@ -8,10 +8,16 @@ impl Java {
     #[cfg(windows)]
     pub fn runtime_path(&self) -> GrindstoneResult<PathBuf> {
         // Use MS store first if available
-
+        let mut path = PathBuf::from(dirs::data_local_dir().unwrap())
+            .join("Packages")
+            .join("Microsoft.4297127D64EC6_8wekyb3d8bbwe") // TODO: Find a way to get the package name
+            .join("LocalState");
+        path.push("runtime");
+        Ok(path)
+        //let mut path = dirs::data_local_dir().unwrap().as_path()
         // Otherwise, try the MSI installation version
 
-        unimplemented!("Not now, i need to setup a rust dev environment on one of my computers.");
+        //unimplemented!("Not now, i need to setup a rust dev environment on one of my computers.");
     }
 
     #[cfg(unix)]

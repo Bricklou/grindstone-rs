@@ -25,7 +25,7 @@ impl Platform {
         self == &Self::current()
     }
 
-    pub fn classpath_seperator(&self) -> char {
+    pub fn classpath_separator(&self) -> char {
         match self {
             Platform::Windows => ';',
             _ => ':',

@@ -8,7 +8,7 @@ use crate::{
 use super::event::CallbackEvent;
 
 pub struct ConfigBuilder {
-    event_callack: Box<fn(CallbackEvent)>,
+    event_callback: Box<fn(CallbackEvent)>,
     folder_path: Option<PathBuf>,
     instance_name: Option<String>,
     pub version: MinecraftVersion,
@@ -26,7 +26,7 @@ impl Default for ConfigBuilder {
     fn default() -> Self {
         Self {
             instance_name: None,
-            event_callack: Box::new(|_| {}),
+            event_callback: Box::new(|_| {}),
             folder_path: None,
             version: MinecraftVersionBuilder::default().build(),
         }
@@ -47,7 +47,7 @@ impl ConfigBuilder {
             .ok_or_else(|| GrindstoneError::InvalidConfig("folder_path".to_string()))?;
 
         Ok(Config {
-            event_callback: self.event_callack,
+            event_callback: self.event_callback,
             folder_path,
             instance_name,
             version: self.version,
@@ -63,7 +63,7 @@ impl ConfigBuilder {
     ///
     /// * `callback` - The lambda function the library will call to notify progress.
     pub fn set_event_callback(mut self, callback: Box<fn(CallbackEvent)>) -> Self {
-        self.event_callack = callback;
+        self.event_callback = callback;
         self
     }
 

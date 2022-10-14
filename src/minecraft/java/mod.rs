@@ -1,4 +1,4 @@
-use std::{path::PathBuf, rc::Rc};
+use std::{path::PathBuf};
 
 use log::{debug, trace};
 
@@ -80,21 +80,11 @@ impl Java {
                 }
             } else if #[cfg(target_os = "windows")]
             {
-                if cfg!(target_pointer_width = "64") {
-                    if let Some(data) = manifest.windows.get(&name) {
-                        let data = data.first().unwrap();
+                if let Some(data) = manifest.windows.get(&name) {
+                    let data = data.first().unwrap();
                     let man = JreRuntimeManifest::get(&data.manifest.url).await?;
-                    invoke_callback!(config, EventType::DownloadJRE(Progress {current: 0, max: 0, message: "".to_string()}), "Downloading JRE");
+                    invoke_callback!(self.config, EventType::DownloadJRE(Progress {current: 0, max: 0, message: "".to_string()}), "Downloading JRE");
                     self.download_jre_files(&java_runtime_path, man.files).await?;
-                    }
-                } else {
-                    if let Some(data) = manifest.windows_32.get(&name) {
-                        let data = data.first().unwrap();
-                    let man = JreRuntimeManifest::get(&data.manifest.url).await?;
-
-                    invoke_callback!(config, EventType::DownloadJRE(Progress {current: 0, max: 0, message: "".to_string()}), "Downloading JRE");
-                    self.download_jre_files(&java_runtime_path, man.files).await?;
-                    }
                 }
             } else if #[cfg(target_os = "macos")]
             {
@@ -102,11 +92,11 @@ impl Java {
                     let data = data.first().unwrap();
                     let man = JreRuntimeManifest::get(&data.manifest.url).await?;
 
-                    invoke_callback!(config, EventType::DownloadJRE(Progress {current: 0, max: 0, message: "".to_string()}), "Downloading JRE");
+                    invoke_callback!(self.config, EventType::DownloadJRE(Progress {current: 0, max: 0, message: "".to_string()}), "Downloading JRE");
                     self.download_jre_files(&java_runtime_path, man.files).await?;
                 }
             } else {
-                compile_error!("Unknow platform {}", env::consts::OS)
+                compile_error!("Unknown platform {}", env::consts::OS)
             }
         }
 
