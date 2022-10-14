@@ -1,14 +1,16 @@
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 
 use futures::{stream::FuturesUnordered, StreamExt};
+use tokio::sync::Semaphore;
 
 use crate::{
     config::Config,
+    constants,
     errors::GrindstoneResult,
     event::{EventType, LibraryInstallationUpdate, Progress},
     invoke_callback,
     minecraft::{vanilla::models::version_data::library::Library, VersionData},
-    utils::download::Download,
+    utils::download::{download_file_check, Download},
 };
 
 impl Library {
@@ -43,13 +45,20 @@ impl Library {
 
         let client = reqwest::Client::new();
         let mut tasks = FuturesUnordered::new();
+        let semaphore = Arc::new(Semaphore::new(constants::MAX_PARALLEL_DOWNLOAD));
 
         for d in downloads {
-            let a = Download::exec(d, &client);
-            tasks.push(a);
+            let c = client.clone();
+
+            let permit = semaphore.clone().acquire_owned().await.unwrap();
+            tasks.push(tokio::spawn(async move {
+                let res = download_file_check(&c, d.url, d.file, d.sha1).await;
+                drop(permit);
+                res
+            }));
         }
 
-        while let Some(res) = tasks.next().await {
+        while let Some(Ok(res)) = tasks.next().await {
             count += 1;
             let name = res?;
             log_progress(count, max, format!("Downloaded library {}", name));

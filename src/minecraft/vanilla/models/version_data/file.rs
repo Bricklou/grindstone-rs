@@ -11,6 +11,6 @@ pub struct File {
     pub sha1: String,
     /// Size of the file
     pub size: usize,
-    /// Url of the file
+    /// URL of the file
     pub url: String,
 }

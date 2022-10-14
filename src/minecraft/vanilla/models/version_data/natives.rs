@@ -8,7 +8,7 @@ pub struct Natives {
     pub linux: Option<String>,
     /// Windows native name.
     pub windows: Option<String>,
-    /// MacOs native name
+    /// Mac Os native name
     pub osx: Option<String>,
 }
 
@@ -16,7 +16,7 @@ impl Natives {
     /// Gets the current platform.
     ///
     /// Returns none when the platform is not supported/implemented.
-    /// Currently linux, windows and macos are supported.
+    /// Currently Linux, windows and Mac Os are supported.
     pub fn get_for_current_platform(&self) -> Option<String> {
         let current = Platform::current();
 

@@ -53,7 +53,7 @@ pub struct LatestVersion {
     pub snapshot: String,
 }
 
-/// Remote manifest file structure provided on minecraft servers
+/// Remote manifest file structure provided on Minecraft servers
 #[derive(Debug, Deserialize, Serialize)]
 struct VersionsManifestResponse {
     pub latest: LatestVersion,

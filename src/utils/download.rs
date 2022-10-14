@@ -1,12 +1,10 @@
-use futures::StreamExt;
 use log::trace;
 use std::{
-    fs::File,
     io::Cursor,
     path::{Path, PathBuf},
 };
-
-use tokio::io::AsyncWriteExt;
+use tokio::fs::{create_dir_all, File};
+use tokio::io;
 
 use crate::errors::{GrindstoneError, GrindstoneResult};
 
@@ -19,49 +17,28 @@ pub struct Download {
     pub sha1: Option<Vec<u8>>,
 }
 
-impl Download {
-    pub async fn exec(d: Self, client: &reqwest::Client) -> GrindstoneResult<String> {
-        use tokio::fs::{create_dir_all, File};
-
-        // Create parent folder
-        if let Some(parent) = d.file.parent() {
-            trace!("Creating parent folder");
-            create_dir_all(parent).await?;
-        }
-
-        trace!("Downloading file: {}", d.url);
-
-        let response = client.get(&d.url).send().await?.error_for_status()?;
-
-        let mut file = File::create(&d.file).await?;
-        let mut stream = response.bytes_stream();
-
-        while let Some(item) = stream.next().await {
-            let chunk = item?;
-            file.write_all(&chunk).await?;
-        }
-
-        file.sync_all().await?;
-
-        Ok(d.url.clone())
-    }
-}
-
 pub async fn download_file<S: Into<String>>(
     client: &reqwest::Client,
     url: S,
     dest: impl AsRef<Path>,
 ) -> GrindstoneResult<()> {
+    // Create parent folder
+    if let Some(parent) = dest.as_ref().parent() {
+        trace!("Creating parent folder");
+        create_dir_all(parent).await?;
+    }
+
     let url = url.into();
     trace!("Downloading file: {}", url);
 
     let response = client.get(url).send().await?.error_for_status()?;
 
-    let mut file = File::create(&dest)?;
-
+    let mut file = File::create(&dest).await?;
     let mut content = Cursor::new(response.bytes().await?);
-    let _total_size = std::io::copy(&mut content, &mut file)?;
-    file.sync_all()?;
+    let _total_size = io::copy(&mut content, &mut file).await?;
+
+    file.sync_all().await?;
+    drop(file);
 
     Ok(())
 }

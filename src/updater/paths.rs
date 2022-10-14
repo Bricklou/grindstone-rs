@@ -37,7 +37,7 @@ impl Config {
     }
 
     /// Path to the game versions
-    /// Version are shared with the offical minecraft launcher
+    /// Version are shared with the official Minecraft launcher
     pub fn versions_path(&self) -> PathBuf {
         let mut path = self.dot_minecraft_path();
         path.push("versions");
@@ -68,7 +68,7 @@ impl Config {
     }
 
     /// Path to the game libraries
-    /// Libraries are shared with the offical minecraft launcher
+    /// Libraries are shared with the official Minecraft launcher
     pub fn libraries_path(&self) -> PathBuf {
         let mut path = self.dot_minecraft_path();
         path.push("libraries");
@@ -76,7 +76,7 @@ impl Config {
     }
 
     /// Path to the game libraries
-    /// Libraries are shared with the offical minecraft launcher
+    /// Libraries are shared with the official Minecraft launcher
     pub fn natives_path(&self) -> PathBuf {
         let mut path = self.dot_minecraft_path();
         path.push("libraries");

@@ -1,5 +1,5 @@
 mod arguments;
-pub mod asset_index;
+pub mod asset_index_info;
 mod downloads;
 mod extract;
 mod file;
@@ -15,8 +15,9 @@ use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
 use self::{
-    arguments::Arguments, asset_index::AssetIndex, downloads::Downloads, java_version::JavaVersion,
-    library::Library, logging_info::LoggingInfo, version_type::VersionType,
+    arguments::Arguments, asset_index_info::AssetIndexInfo, downloads::Downloads,
+    java_version::JavaVersion, library::Library, logging_info::LoggingInfo,
+    version_type::VersionType,
 };
 
 /// The version data includes all information for installing and launching Minecraft.
@@ -27,7 +28,7 @@ pub struct VersionData {
     pub arguments: Option<Arguments>,
     #[serde(alias = "assetIndex")]
     /// Asset index information.
-    pub asset_index: Option<AssetIndex>,
+    pub asset_index: AssetIndexInfo,
     /// Used asset index.
     pub assets: String,
     /// Compliance level.

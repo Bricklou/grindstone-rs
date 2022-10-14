@@ -7,7 +7,7 @@ pub enum VersionType {
     /// Stable release.
     #[serde(alias = "release")]
     Release,
-    /// Snapshot or pre release.
+    /// Snapshot or pre-release.
     #[serde(alias = "snapshot")]
     Snapshot,
     /// Old alpha.

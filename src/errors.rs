@@ -16,17 +16,17 @@ pub enum GrindstoneError {
     #[error("{0}")]
     Reqwest(reqwest::Error),
 
-    /// Serializing or deserializing of some data failed.
+    /// Serializing or de-serializing of some data failed.
     #[error("{0}")]
     Serde(serde_json::Error),
 
-    /// Problem while comparing checksums of files.
+    /// Problem while comparing checksum of files.
     /// Occurs mostly when downloading resources.
     #[error("Checksums do not match")]
     ChecksumMismatch,
 
     /// A checksum that is provided from an index has an invalid format.
-    /// Versiondata and the Assetindex provide checksums for resources.
+    /// `Versiondata` and the `Assetindex` provide checksum for resources.
     #[error("Checksum does not have a valid format: {0}")]
     InvalidChecksum(hex::FromHexError),
 
@@ -35,7 +35,7 @@ pub enum GrindstoneError {
     #[error("Minecraft version '{0}' is invalid")]
     InvalidVersion(String),
 
-    /// Problem occured while parsing minecraft library name.
+    /// Problem occurred while parsing Minecraft library name.
     /// Format: `<package>:<name>:<version>`
     #[error("Format of a library name is invalid and not supported")]
     LibraryNameFormat,

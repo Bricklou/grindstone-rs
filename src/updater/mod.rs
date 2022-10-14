@@ -4,7 +4,7 @@ use crate::{
     errors::GrindstoneResult,
     event::EventType,
     invoke_callback,
-    minecraft::{java::Java, AssetIndex, Library, VersionData, VersionsManifest},
+    minecraft::{java::Java, Library, VersionData, VersionsManifest},
 };
 
 use self::config::Config;
@@ -64,11 +64,18 @@ impl GrindstoneUpdater {
         let java = Java::new(self.config.clone());
         self.java_runtime_path = java.install(v_data.clone()).await?;
 
-        // Download asset index
-        AssetIndex::save(&self.config, v_data.clone()).await?;
-
         // Download libraries
         Library::install_libraries(&self.config, v_data.clone()).await?;
+
+        // Download asset index
+        invoke_callback!(
+            &self.config,
+            crate::event::EventType::DownloadAssetIndex,
+            "Downloading assets index"
+        );
+        let asset_index = v_data.asset_index.fetch_index().await?;
+
+        asset_index.install_assets(&self.config).await?;
 
         Ok(())
     }

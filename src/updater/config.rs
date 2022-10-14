@@ -34,7 +34,7 @@ impl Default for ConfigBuilder {
 }
 
 impl ConfigBuilder {
-    /// Build the config object
+    /// Build the configuration object
     pub fn build(self) -> GrindstoneResult<Config> {
         let instance_name = self
             .instance_name

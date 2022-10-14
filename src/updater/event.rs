@@ -14,6 +14,15 @@ pub enum LibraryInstallationUpdate {
     Extracting,
 }
 
+/// Update of asset installation
+#[derive(Clone, Debug)]
+pub enum AssetInstallationUpdate {
+    /// Download status
+    Downloading,
+    /// Symlinks
+    Symlink,
+}
+
 #[derive(Debug)]
 pub enum EventType {
     Starting,
@@ -23,6 +32,7 @@ pub enum EventType {
     DownloadJRE(Progress),
     DownloadAssetIndex,
     Libraries(Progress, LibraryInstallationUpdate),
+    Assets(Progress, AssetInstallationUpdate),
 }
 
 #[derive(Debug)]
