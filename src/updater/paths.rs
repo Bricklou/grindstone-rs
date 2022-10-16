@@ -82,4 +82,11 @@ impl Config {
         path.push("libraries");
         path
     }
+
+    /// Path to the logs config XML file
+    pub fn log_configs_path(&self) -> PathBuf {
+        let mut path = self.assets_path();
+        path.push("log_configs");
+        path
+    }
 }

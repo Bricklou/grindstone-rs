@@ -1,9 +1,4 @@
-use std::{
-    collections::HashMap,
-    fs,
-    os::{linux::raw, unix::prelude::PermissionsExt},
-    path::PathBuf,
-};
+use std::{collections::HashMap, fs, os::unix::prelude::PermissionsExt, path::PathBuf};
 
 use futures::{stream::FuturesUnordered, StreamExt};
 use log::{debug, trace};
@@ -76,11 +71,6 @@ impl Java {
 
                     let raw_data = data.downloads.unwrap().raw;
                     let sha = hex::decode(&raw_data.sha1)?;
-                    let dl = Download {
-                        file: path.clone(),
-                        sha1: Some(sha.clone()),
-                        url: raw_data.url.clone(),
-                    };
 
                     let a =
                         download_file_check(&client, raw_data.url.clone(), path.clone(), Some(sha));

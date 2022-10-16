@@ -6,7 +6,7 @@ mod file;
 pub mod java_version;
 pub mod library;
 mod library_download;
-mod logging_info;
+pub mod logging_info;
 mod natives;
 mod rules;
 pub mod version_type;
