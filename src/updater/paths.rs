@@ -44,6 +44,15 @@ impl Config {
         path
     }
 
+    /// Path to the version JAR file
+    pub fn version_jar_path(&self) -> PathBuf {
+        let mut path = self.versions_path();
+        let v = self.version.id.clone();
+        path.push(&v);
+        path.push(format!("{}.jar", v));
+        path
+    }
+
     /// Path to the version manifest file
     pub fn version_data_path(&self) -> PathBuf {
         let mut path = self.versions_path();

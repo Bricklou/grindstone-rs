@@ -34,6 +34,7 @@ pub enum EventType {
     Libraries(Progress, LibraryInstallationUpdate),
     Assets(Progress, AssetInstallationUpdate),
     DownloadLogConfig,
+    DownloadClient,
 }
 
 #[derive(Debug)]

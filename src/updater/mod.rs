@@ -4,7 +4,7 @@ use crate::{
     errors::GrindstoneResult,
     event::EventType,
     invoke_callback,
-    minecraft::{java::Java, Library, LoggingInfo, VersionData, VersionsManifest},
+    minecraft::{java::Java, Client, Library, LoggingInfo, VersionData, VersionsManifest},
 };
 
 use self::config::Config;
@@ -78,6 +78,8 @@ impl GrindstoneUpdater {
         asset_index.install_assets(&self.config).await?;
 
         LoggingInfo::install_log_patch(&self.config, &v_data).await?;
+
+        Client::install(&self.config, &v_data).await?;
 
         Ok(())
     }
