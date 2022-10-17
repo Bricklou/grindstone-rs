@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
+#[cfg(windows)]
 use crate::constants::MC_MS_STORE_IDENTIFIANT;
+
 use crate::errors::GrindstoneResult;
 
 use super::Java;
