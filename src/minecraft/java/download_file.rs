@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, os::unix::prelude::PermissionsExt, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use futures::{stream::FuturesUnordered, StreamExt};
 use log::{debug, trace};
@@ -8,12 +8,12 @@ use crate::{
     errors::GrindstoneResult,
     event::{EventType, Progress},
     invoke_callback,
-    utils::download::{download_file_check},
+    utils::download::download_file_check,
 };
 
 use super::{
-    runtime_manifest::{FileType, JreFile},
     Java,
+    runtime_manifest::{FileType, JreFile},
 };
 
 #[derive(Deserialize, Debug)]
@@ -109,7 +109,7 @@ impl Java {
 
             if path.exists() {
                 if !path.is_symlink() || path.read_link()? != target {
-                    std::fs::remove_file(&path)?;
+                    std::fs::remove_file(&path)?; // TODO Warning: Unnecessary qualification
                 } else {
                     continue;
                 }
