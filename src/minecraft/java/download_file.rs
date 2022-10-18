@@ -12,8 +12,8 @@ use crate::{
 };
 
 use super::{
-    Java,
     runtime_manifest::{FileType, JreFile},
+    Java,
 };
 
 #[derive(Deserialize, Debug)]
@@ -109,7 +109,7 @@ impl Java {
 
             if path.exists() {
                 if !path.is_symlink() || path.read_link()? != target {
-                    std::fs::remove_file(&path)?; // TODO Warning: Unnecessary qualification
+                    fs::remove_file(&path)?;
                 } else {
                     continue;
                 }
@@ -126,7 +126,8 @@ impl Java {
             }
         }
 
-        #[cfg(unix)] {
+        #[cfg(unix)]
+        {
             use std::os::{linux::raw, unix::prelude::PermissionsExt};
 
             trace!("Apply files permissions");

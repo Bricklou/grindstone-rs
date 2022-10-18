@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 #[cfg(windows)]
-use crate::constants::MC_MS_STORE_IDENTIFIANT;
+use crate::constants::MC_MS_STORE_IDENTIFIER;
 
 use crate::errors::GrindstoneResult;
 
@@ -11,8 +11,9 @@ impl Java {
     #[cfg(windows)]
     pub fn runtime_path(&self) -> GrindstoneResult<PathBuf> {
         // Use MS store first if available
-        let mut path = PathBuf::from(dirs::data_local_dir().unwrap())
-            .join("Packages").join(MC_MS_STORE_IDENTIFIANT);
+        let mut path = dirs::data_local_dir().unwrap()
+            .join("Packages")
+            .join(MC_MS_STORE_IDENTIFIER);
         if path.exists() {
             path = path.join("LocalState");
         } else if PathBuf::from("C:/Program Files (x86)/Minecraft").exists() {

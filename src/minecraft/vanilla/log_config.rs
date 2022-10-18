@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use log::{debug, trace};
 
 use crate::{
@@ -8,7 +6,7 @@ use crate::{
     event::EventType,
     invoke_callback,
     minecraft::VersionData,
-    utils::download::{download_file_check, Download},
+    utils::download::{Download, download_file_check},
 };
 
 use super::models::version_data::logging_info::LoggingInfo;
