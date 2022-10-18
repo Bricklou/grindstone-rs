@@ -6,7 +6,7 @@ use crate::{
     event::EventType,
     invoke_callback,
     minecraft::VersionData,
-    utils::download::{Download, download_file_check},
+    utils::download::{download_file_check, Download},
 };
 
 use super::models::version_data::logging_info::LoggingInfo;

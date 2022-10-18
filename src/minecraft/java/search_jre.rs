@@ -11,7 +11,8 @@ impl Java {
     #[cfg(windows)]
     pub fn runtime_path(&self) -> GrindstoneResult<PathBuf> {
         // Use MS store first if available
-        let mut path = dirs::data_local_dir().unwrap()
+        let mut path = dirs::data_local_dir()
+            .unwrap()
             .join("Packages")
             .join(MC_MS_STORE_IDENTIFIER);
         if path.exists() {
