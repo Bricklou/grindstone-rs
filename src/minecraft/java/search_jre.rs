@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 #[cfg(windows)]
 use crate::constants::MC_MS_STORE_IDENTIFIER;
-
 use crate::errors::GrindstoneResult;
 
 use super::Java;
@@ -16,11 +15,13 @@ impl Java {
             .join("Packages")
             .join(MC_MS_STORE_IDENTIFIER);
         if path.exists() {
-            path = path.join("LocalState");
+            path = path.join("LocalCache")
+                .join("Local");
         } else if PathBuf::from("C:/Program Files (x86)/Minecraft").exists() {
             path = PathBuf::from("C:/Program Files (x86)/Minecraft");
         } else {
-            path = path.join("LocalState");
+            path = path.join("LocalCache")
+                .join("Local");
         }
         path.push("runtime");
         Ok(path)
