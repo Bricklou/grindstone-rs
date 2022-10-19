@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+#[cfg(windows)]
+use crate::constants::MC_MS_STORE_IDENTIFIER;
 use crate::errors::GrindstoneResult;
 
 use super::Java;
@@ -8,10 +10,19 @@ impl Java {
     #[cfg(windows)]
     pub fn runtime_path(&self) -> GrindstoneResult<PathBuf> {
         // Use MS store first if available
-
-        // Otherwise, try the MSI installation version
-
-        unimplemented!("Not now, i need to setup a rust dev environment on one of my computers.");
+        let mut path = dirs::data_local_dir()
+            .unwrap()
+            .join("Packages")
+            .join(MC_MS_STORE_IDENTIFIER);
+        if path.exists() {
+            path = path.join("LocalCache").join("Local");
+        } else if PathBuf::from("C:/Program Files (x86)/Minecraft").exists() {
+            path = PathBuf::from("C:/Program Files (x86)/Minecraft");
+        } else {
+            path = path.join("LocalCache").join("Local");
+        }
+        path.push("runtime");
+        Ok(path)
     }
 
     #[cfg(unix)]

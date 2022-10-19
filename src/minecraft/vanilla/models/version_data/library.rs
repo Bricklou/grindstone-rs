@@ -1,9 +1,5 @@
-use std::{
-    collections::VecDeque,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
-use log::warn;
 use serde::{Deserialize, Serialize};
 
 use crate::{constants, utils::os::Architecture};

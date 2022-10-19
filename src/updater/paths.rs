@@ -23,12 +23,12 @@ impl Config {
 
         cfg_if! {
             if #[cfg(windows)] {
-                let path = dirs::data_dir().unwrap();
+                let mut path = dirs::data_dir().unwrap();
 
             } else if #[cfg(any(unix,macos))] {
                 let mut path = dirs::home_dir().unwrap();
             } else {
-                compile_error!("Unknow platform {}", env::consts::OS)
+                compile_error!("Unknown platform {}", env::consts::OS)
             }
         }
 

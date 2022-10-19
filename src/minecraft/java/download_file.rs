@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, os::unix::prelude::PermissionsExt, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use futures::{stream::FuturesUnordered, StreamExt};
 use log::{debug, trace};
@@ -8,7 +8,7 @@ use crate::{
     errors::GrindstoneResult,
     event::{EventType, Progress},
     invoke_callback,
-    utils::download::{download_file_check, Download},
+    utils::download::download_file_check,
 };
 
 use super::{
@@ -109,7 +109,7 @@ impl Java {
 
             if path.exists() {
                 if !path.is_symlink() || path.read_link()? != target {
-                    std::fs::remove_file(&path)?;
+                    fs::remove_file(&path)?;
                 } else {
                     continue;
                 }
@@ -119,18 +119,23 @@ impl Java {
                 if #[cfg(unix)] {
                     std::os::unix::fs::symlink(target, path)?;
                 } else if #[cfg(target_os = "windows")] {
-                    std::os::windows::fs::symlink(original, link)
+                    std::os::windows::fs::symlink_file(target, path)?;
                 } else {
-                    compile_error!("Unknow platform {}", env::consts::OS)
+                    compile_error!("Unknown platform {}", env::consts::OS)
                 }
             }
         }
 
-        trace!("Apply files permissions");
-        for path in exec {
-            let mut perms = fs::metadata(&path)?.permissions();
-            perms.set_mode(perms.mode() | 0o700);
-            fs::set_permissions(path, perms)?
+        #[cfg(unix)]
+        {
+            use std::os::{linux::raw, unix::prelude::PermissionsExt};
+
+            trace!("Apply files permissions");
+            for path in exec {
+                let mut perms = fs::metadata(&path)?.permissions();
+                perms.set_mode(perms.mode() | 0o700);
+                fs::set_permissions(path, perms)?
+            }
         }
         Ok(())
     }
