@@ -1,5 +1,5 @@
 <h1>
-    <img src=".github/logo.svg" alt="grindstone-ts" align="center"/>
+    <img src=".github/logo.svg" alt="grindstone-rs" align="center"/>
 </h1>
 <div align="center">
     <strong>
